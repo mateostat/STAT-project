@@ -1,0 +1,5 @@
+---
+title: "Stat group project"
+output: html_document
+date: "2026-11-13"
+---
