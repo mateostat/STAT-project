@@ -3,3 +3,38 @@ title: "Stat group project"
 output: html_document
 date: "2026-11-13"
 ---
+```{r}
+library(caret)
+library(rpart)
+library(rpart.plot)
+```
+STEP 1
+```{r}
+heart_data <- read.csv("heart.csv")
+heart_data <- unique(heart_data)
+heart_data$target <- factor(heart_data$target, levels = c(0, 1), labels = c("No_Disease", "Disease"))
+```
+STEP 2
+```{r}
+set.seed(123)
+train_index <- createDataPartition(heart_data$target, p = 0.80, list = FALSE)
+train_data <- heart_data[train_index, ]
+test_data <- heart_data[-train_index, ]
+```
+STEP 3
+```{r}
+cv_settings <- trainControl(method = "cv", number = 10)
+tuned_tree <- train(target~., data = train_data, method = "rpart", trControl = cv_settings, tuneLength = 10)
+plot(tuned_tree, main = "Cross-Validation Accuracy vs. Complexity Parameter (CP")
+```
+STEP 4
+```{r}
+predictions <- predict(tuned_tree, newdata = test_data)
+confusion_table <- table(Actual = test_data$target, Predicted = predictions)
+print("---Test Set Confusion Matrix Table---")
+print(confusion_table)
+correct_counts <- sum(diag(confusion_table))
+total_counts <- sum(confusion_table)
+test_accuracy <- correct_counts/total_counts
+cat("\nFinal Calculated Test Accuracy Rate:", round(test_accuracy * 100, 2), "%\n")
+```
